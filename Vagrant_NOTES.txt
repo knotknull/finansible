@@ -1,0 +1,84 @@
+Notes on Vagrant:
+==================
+
+Vagrant: virtual machine controller
+VirtalBox: VM Provider
+
+
+Vagrant Installation:
+
+www.vagrantup.com  > Downloads > Debian 64 bit
+
+
+VirtualBox Installation:
+1. www.virtualbox.org > Downloads >
+
+2. sudo nano /etc/apt/sources.list
+
+3. ### LinuxMint 18 ###
+deb http://download.virtualbox.org/virtualbox/debian xenial contrib
+
+### LinuxMint 17 ###
+deb http://download.virtualbox.org/virtualbox/debian trusty contrib
+
+4. ### LinuxMint 18 ###
+wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+
+### LinuxMint 17 ###
+wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+
+5. sudo apt-get update
+
+6. sudo apt-get install virtualbox-5.2
+
+7. sudo apt-get install dkms
+
+
+###########################################################################
+## Setup new vagrant / virtbox environment
+###########################################################################
+
+vagrant init    ## Creates pre-configure Vagrant file
+
+
+NOTE: vagrantcloud.com has all different vagrant boxes you can download.
+      (see ubuntu/trusty64)
+
+Create Vagrantfile as follows:
+NOTE:  the acs = Ansible Control Server, web = Web server, db=Database
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+
+  config.vm.define "acs" do |acs|
+    acs.vm.box = "ubuntu/trusty64"
+    acs.vm.hostname  = "acs"
+    acs.vm.network "private_network", ip: "192.168.33.10"
+  end
+
+  config.vm.define "web" do |web|
+    web.vm.box = "nrel/CentOS-6.5-x86_64"
+    web.vm.hostname  = "web"
+    web.vm.network "private_network", ip: "192.168.33.20"
+    web.vm.network "forwarded_port", guest: 80, host: 8118
+  end
+
+  config.vm.define "db" do |db|
+    db.vm.box = "nrel/CentOS-6.5-x86_64"
+    db.vm.hostname  = "db"
+    db.vm.network "private_network", ip: "192.168.33.30"
+  end
+
+end
+
+
+## Start VMs
+> vagrant up
+
+NOTE: will download VM image and start them up.
+
+## Check running VMs
+> vboxmanage list runningvms

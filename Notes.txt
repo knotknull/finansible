@@ -1,0 +1,129 @@
+
+
+GITHUB for Ansible Lightbulb: https://github.com/ansible/lightbulb
+
+
+Ansible Essentials Deck:
+http://lightbulb.rhdemo.io/decks/ansible-essentials.html#/
+
+Intro to Tower Deck:
+http://lightbulb.rhdemo.io/decks/intro-to-ansible-tower.html
+
+Lab Guide:
+http://ansible.redhatgov.io/standard/core/index.html
+
+
+Tower Download:
+http://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-latest.tar.gz
+
+You may want to run these commands on your control node to download Ansible Tower directly with wget:
+
+sudo yum -y install wget
+wget http://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-latest.tar.gz
+
+4 Node NFR Lightbulb license is here:
+http://lightbulb.rhdemo.io/ansible_tower_license.txt
+
+Student 5 details:
+
+[all:vars]
+ansible_user=student5
+ansible_ssh_pass=r3dh4t
+
+ansible_port=22
+
+[web]
+node-1 ansible_host=54.173.16.96
+node-2 ansible_host=107.22.39.5
+
+[control]
+control ansible_host=52.207.84.34
+
+http://nj-studen5.rhdemo.io:8080
+
+#######################################################################
+##
+## Workshop Notes
+##
+#######################################################################
+
+https://galaxy.ansible.com
+
+Oreilly book:
+Ansible up & running
+
+modules
+plugins
+
+## inventory
+##
+inventory: collection of hosts (nodes) associated data and groupings
+
+ - hosts (nodes)
+ - groups
+ - inventory-specific data (variables)
+ - static / dynamic sources
+
+inventory example:
+
+ [control]
+ control ansible_host=10.42.0.2
+
+ [web]
+ node-[1:3] ansible_host=10.42.0.[6:8]
+
+ [haproxy]
+ haproxy ansible_host=10.42.0.100
+
+ [all:vars]
+ ansible_user=vagrant
+ ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
+
+
+
+## ad-hoc
+##
+ad-hoc commands: single Ansible task to perform quickly, but don't want to
+                 save for later
+
+-m MODULE_NAME, --module-name=MODULE_NAME
+                 Module name to execute the ad-hoc command
+-a MODULE_ARGS, --args=MODULE_ARGS
+                 Module arguments for the ad-hoc command
+
+-b, --become     Run ad-hoc command with elevated rights such as sudo,
+                 the default method
+
+-e EXTRA_VARS, --extra-vars=EXTRA_VARS
+                 Set additional variables as key=value or YAML/JSON
+
+--version        Display the version of Ansible
+
+--help           Display the MAN page for the ansible tool
+
+# check all my inventory hosts are ready to be
+# managed by Ansible
+$ ansible all -m ping
+
+# collect and display the discovered facts
+# for the localhost
+$ ansible localhost -m setup
+
+# run the uptime command on all hosts in the
+# web group
+$ ansible web -m command -a "uptime"
+
+NOTE:  Can use powerbroker
+
+
+
+
+
+
+
+
+
+
+
+
+##

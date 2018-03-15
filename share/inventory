@@ -1,0 +1,13 @@
+[all:vars]
+ansible_user=student5
+ansible_ssh_pass=r3dh4t
+
+ansible_port=22
+
+[web]
+node-1 ansible_host=54.173.16.96
+node-2 ansible_host=107.22.39.5
+
+[control]
+control ansible_host=52.207.84.34
+

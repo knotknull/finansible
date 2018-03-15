@@ -1,0 +1,3 @@
+node_2=107.22.39.5
+
+ssh student5@${node_2}
