@@ -1,7 +1,7 @@
 
-
+Slides:
 GITHUB for Ansible Lightbulb: https://github.com/ansible/lightbulb
-
+https://github.com/ansible/lightbulb/decks
 
 Ansible Essentials Deck:
 http://lightbulb.rhdemo.io/decks/ansible-essentials.html#/
@@ -11,7 +11,7 @@ http://lightbulb.rhdemo.io/decks/intro-to-ansible-tower.html
 
 Lab Guide:
 http://ansible.redhatgov.io/standard/core/index.html
-
+http://ansible.redhatgov.io/standard/core/exercise1.6.html
 
 Tower Download:
 http://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-latest.tar.gz
@@ -23,6 +23,49 @@ wget http://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-latest.
 
 4 Node NFR Lightbulb license is here:
 http://lightbulb.rhdemo.io/ansible_tower_license.txt
+
+
+## Ansible Resources
+##
+
+
+Install Ansible
+http://docs.ansible.com/ansible/intro_installation.html
+
+Ansible Tower Free Trial
+https://www.ansible.com/tower-trial
+
+Ansible and Ansible Tower Documentation
+http://docs.ansible.com/
+
+Ansible Quick Start Guide
+https://www.ansible.com/get-started
+
+Ansible Videos
+https://www.ansible.com/videos
+
+Webinars and Training
+https://www.ansible.com/webinars-training
+
+Ansible Blog
+https://www.ansible.com/blog
+
+Ansible In Depth
+https://www.ansible.com/ansible-in-depth-whitepaper
+
+Ansible Examples
+https://github.com/ansible/ansible-examples
+
+Ansible Essentials Presentation Deck
+http://ansible.redhatgov.io/decks/ansible-essentials.html#/
+
+Intro to Ansible Tower Presentation Deck
+http://ansible.redhatgov.io/decks/intro-to-ansible-tower.html#/
+
+
+
+
+
 
 Student 5 details:
 
@@ -356,6 +399,220 @@ run-time evaluation of variable, fact, or previous task result
       src: templates/httpd.conf.j2
       dest: /etc/httpd/conf/httpd.conf
   when: ansible_os_family == "RedHat"
+
+
+
+## Roles: packages of closely related Ansible content
+##
+
+ - Improves readability and maintainability of complex plays
+ - Eases sharing, reuse and standardization of automation processes
+ - Enables Ansible content to exist independently of playbooks, projects
+       -- even organizations
+ - Provides functional conveniences such as file path resolution
+   and default values
+
+NOTE: Roles conform to specific directory structure!!
+      Role name must match directory name.
+        i.e.  roles/common/tasks/main.yml
+
+site.yml
+roles/
+   common/
+     files/
+     templates/
+     tasks/
+     handlers/
+     vars/
+     defaults/
+     meta/
+   apache/
+     files/
+     templates/
+     tasks/
+     handlers/
+     vars/
+     defaults/
+     meta/
+
+> cat site.yml
+---
+- hosts: web
+  roles:
+    - common
+    - apache
+
+
+## galaxy.ansible.com:  shared playbooks
+##
+NOTE: can initiate a new role w/ ansible-galaxy
+
+> mkdir roles
+> cd roles
+> ansible-galaxy init apache-simple
+
+
+> directory structer of ansible tool using roles
+
+tree apache_basic_playbook/
+apache_basic_playbook/
+├── roles
+│   └── apache-simple
+│       ├── defaults
+│       │   └── main.yml
+│       ├── handlers
+│       │   └── main.yml
+│       ├── meta
+│       │   └── main.yml
+│       ├── README.md
+│       ├── tasks
+│       │   └── main.yml
+│       ├── templates
+│       │   ├── httpd.conf.j2
+│       │   └── index.html.j2
+│       └── vars
+│           └── main.yml
+├── site.yml
+└── site.yml.bkup
+
+8 directories, 10 files
+
+> cat site.yml
+
+---
+- hosts: all
+  name: This is my role-based playbook
+  become: yes
+
+  roles:
+    - apache-simple
+
+
+
+####################################################################
+## Ansible Tower
+####################################################################
+
+
+
+What is Ansible Tower?
+
+Ansible Tower is an enterprise framework for controlling, securing and
+managing your Ansible automation – with a UI and RESTful API
+
+Role-based access control keeps environments secure, and teams efficient
+Non-privileged users can safely deploy entire applications with push-button
+deployment access
+All Ansible automations are centrally logged, ensuring complete
+auditability and compliance
+
+
+## Key Features of Ansible Tower:
+##
+ - Dashboard and User Interface
+ - User Base -- Organizations, Teams & Users
+ - Credentials
+ - Inventories
+ - Projects
+ - Job Templates & Jobs
+ - Role Based Access Control (RBAC)
+
+
+##  User Base
+##
+
+A user is an account to access Tower and its services given
+  the permissions granted to it.
+An organization is a logical collection of users, teams, projects,
+  inventories and more. All entities belong to an organization with the exception of users.
+Teams provide a means to implement role-based access control schemes
+  and delegate responsibilities across organizations.
+
+
+##  Credentials
+##
+Credentials are utilized by Tower for authentication with various
+ external resources:
+  - Connecting to remote machines to run jobs
+  - Syncing with inventory sources
+  - Importing project content from version control systems
+  - Connecting to and managing networking devices
+  - Centralized management of various credentials allows end users
+   to leverage a secret without ever exposing that secret to them.
+
+NOTE: Tower as credential vault
+
+
+##  Inventory
+##
+
+Inventory is a collection of hosts (nodes) with associated data and groupings
+that Tower can connect to and manage.
+ - Hosts (nodes)
+ - Groups
+ - Inventory-specific data (variables)
+ - Static or dynamic sources
+
+
+##  Projects:  source playbooks from a repository
+##
+Projects
+
+A Project is a logical collection of Ansible Playbooks, represented in Tower.
+You can manage Playbooks and Playbook directories by placing them in a
+source code management system supported by Tower, including:
+ - Git
+ - Subversion
+ - Mercurial
+
+
+##  Job Templates  ( group parameters for a playbook )
+##
+
+A job template is a definition and set of parameters for running an
+Ansible Playbook.
+
+Job templates are useful to execute the same job many times and encourage
+the reuse of Ansible Playbook content and collaboration between teams.
+
+
+
+## Jobs
+##
+
+- A job is an instance of Tower launching an Ansible Playbook against an
+inventory of hosts.
+- Job results can be easily viewed
+- View the standard out for a more in-depth look
+
+## Role Based Access Control (RBAC)
+##
+
+Role-Based Access Controls (RBAC) are built into Ansible Tower and
+allow administrators to delegate access to server inventories,
+organizations, and more. These controls allow Tower to help you
+increase security and streamline management of your Ansible automation.
+
+
+NOTE:  Can cache FACTS about inventory so you do not have to grap info
+from the machine for each run.
+
+
+
+
+Ansible Tower > Template > Workflow
+
+Can chain playbooks into "workflows"
+
+Rest API (swagger like)
+
+NOTE: Tower license is per node.
+
+
+
+Notifications: email, sms, etc.
+
+
 
 
 
