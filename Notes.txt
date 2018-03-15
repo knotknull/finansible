@@ -27,8 +27,8 @@ http://lightbulb.rhdemo.io/ansible_tower_license.txt
 Student 5 details:
 
 [all:vars]
-ansible_user=student5
-ansible_ssh_pass=r3dh4t
+ansible_user=
+ansible_ssh_pass=
 
 ansible_port=22
 
@@ -39,7 +39,7 @@ node-2 ansible_host=107.22.39.5
 [control]
 control ansible_host=52.207.84.34
 
-http://nj-studen5.rhdemo.io:8080
+http://nj-student5.rhdemo.io:8080
 
 #######################################################################
 ##
@@ -115,12 +115,247 @@ $ ansible web -m command -a "uptime"
 
 NOTE:  Can use powerbroker
 
+## Configuration file: .ansible.cfg
+##
+
+[student5@ip-172-48-8-93 ~]$ cat .ansible.cfg
+[defaults]
+connection = smart
+timeout = 60
+forks = 10
+inventory = ~student5/lightbulb/lessons/lab_inventory/
+host_key_checking = False
+
+
+
+## Variables
+##
+Ansible can work with metadata from various sources and manage their
+context in the form of variables.
+
+ - Command line parameters
+ - Plays and tasks
+ - Files
+ - Inventory
+ - Discovered facts
+ - Roles
+
+ Variable Precedence
+
+ The order in which the same variable from different sources will override each other.
+
+ extra vars                            registered vars
+ task vars (only for the task)         host facts
+ block vars (only for tasks in block)  playbook host_vars
+ role and include vars                 playbook group_vars
+ play vars_files                       inventory host_vars
+ play vars_prompt                      inventory group_vars
+ play vars                             inventory vars
+ set_facts                             role defaults
+
+
+
+##  Tasks: perform a specific unit of work
+##
+
+  - file: A directory should exist
+  - yum: A package should be installed
+  - service: A service should be running
+  - template: Render a configuration file from a template
+  - get_url: Fetch an archive file from a URL
+  - git: Clone a source code repository
+
+## Handler: special tasks that run at the end of a play if notified
+##          by another task when a change occurs.
+##
+
+tasks:
+- name: httpd package is present
+  yum:
+    name: httpd
+    state: latest
+  notify: restart httpd
+
+- name: latest index.html file is present
+  copy:
+    src: files/index.html
+    dest: /var/www/html/
+
+handlers:
+- name: restart httpd
+  service:
+    name: httpd
+    state: restarted
+
+## Plays / Playbooks
+##
+Plays are ordered sets of tasks to execute against host selections from
+your inventory.
+
+NOTE: Playbook associated with a hosts
+
+A playbook is a file containing one or more plays.
+
+
+## Name: Human readable name
+##
+
+- name: install and start apache
+  hosts: web
+  become: yes
+  vars:
+    http_port: 80
+
+  tasks:
+  - name: httpd package is present
+    yum:
+      name: httpd
+      state: latest
+
+
+## Host Selector: hosts:
+##
+---
+- name: install and start apache
+  hosts: web
+  become: yes
+  vars:
+    http_port: 80
+
+
+## Privilege Escalation: become:
+##
+---
+- name: install and start apache
+  hosts: web
+  become: yes
+  vars:
+    http_port: 80
+
+
+## Play Variables:  vars:
+##
+---
+- name: install and start apache
+  hosts: web
+  become: yes
+  vars:
+    http_port: 80
+
+## Tasks:  tasks:  module names (yum, copy, service)
+##
+---
+- name: install and start apache
+  hosts: web
+  become: yes
+  vars:
+    http_port: 80
+
+  tasks:
+  - name: latest httpd package is present
+    yum:
+      name: httpd
+      state: latest
+
+  - name: latest index.html file is present
+    copy:
+      src: files/index.html
+      dest: /var/www/html/
+
+  - name: httpd is started
+    service:
+      name: httpd
+      state: started
 
 
 
 
 
+playbook:  A playbook can have multiple plays and a play can
+           have one or multiple tasks.
+play    :  The goal of a play is to map a group of hosts.
+task    :  The goal of a task is to implement modules against those hosts.
 
+
+
+##  To run a playbook
+##
+##  -i <file_name>  inventory file
+##  -k query for password
+
+> ansible-playbook -i ./hosts -k install_apache.yml
+
+
+
+## Templates    ( {{}} )
+##
+Ansible embeds the Jinja2 templating engine that can be used to dynamically:
+
+ - Set and modify play variables
+ - Conditional logic
+ - Generate files such as configurations from variables
+
+
+## Loops:  (with_items:)
+##
+Loops can do one task on multiple things, such as create a lot of users,
+install a lot of packages, or repeat a polling step until a certain result
+is reached
+
+- yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+  - httpd
+  - mod_wsgi
+
+
+
+## Conditionals:  (when:)
+##
+Ansible supports the conditional execution of a task based on the
+run-time evaluation of variable, fact, or previous task result
+(when:)
+
+- yum:
+    name: httpd
+    state: latest
+  when: ansible_os_family == "RedHat"
+
+
+## Tags: can run playbooks by certain tags only  (tags:)
+##
+- yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+  - httpd
+  - mod_wsgi
+  tags:
+     - packages
+
+ - template:
+     src: templates/httpd.conf.j2
+     dest: /etc/httpd/conf/httpd.conf
+  tags:
+     - configuration
+
+
+
+## Blocks: groups together multiple tasks / logical grouping of tasks
+##  ( -block: )
+- block:
+  - yum:
+      name: "{{ item }}"
+      state: latest
+    with_items:
+    - httpd
+    - mod_wsgi
+
+  - template:
+      src: templates/httpd.conf.j2
+      dest: /etc/httpd/conf/httpd.conf
+  when: ansible_os_family == "RedHat"
 
 
 
